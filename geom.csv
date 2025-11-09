@@ -11,4 +11,3 @@ question,verifiable_answer,task_complexity,olympiad
 "Given the equilateral triangle ABC. It is known that the radius of the inscribed circle is in this triangle is equal to 1. The rectangle ABDE is such that point C belongs to its side DE. Find the radius of the circle circumscribed around the rectangle ABDE.",2.291,E,Yas
 "In the rectangle ABCD, AB=2BC. An equilateral triangle ABE is constructed on the side AB of the rectangle so that its sides AE and BE intersect the segment CD. Point M is the midpoint of BE. Find the ∠MCD.",15,E,Yas
 "In the triangle $ABC$, it is known that $AB = BC = 20$ cm, and $AC = 24$ cm. The point $M$ lies on the side $BC$ and is equidistant from sides $AB$ and $AC$. Find this distance.",8.727,E,Yas
-"
