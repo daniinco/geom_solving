@@ -1,0 +1,14 @@
+question,verifiable_answer,task_complexity,olympiad
+"Let ABC be a triangle with ∠A=60o. The points M,N,K lie on BC,AC,AB respectively such that BK=KM=MN=NC. If AN=2AK, find the values of ∠B and ∠C.",70;45,E,IGO
+"Let ABCDE be a convex pentagon such that AB=BC=CD and ∠BDE=∠EAC=30∘. Find the possible values of ∠BEC.",60,E,IGO
+"Medians AM and BE of a triangle ABC  intersect at O. The points O,M,E,C lie on one circle. Find the length of AB if BE=AM=3.",3.464,?,Yas
+"In a circle,  let AB and BC be chords , with  AB=sqrt(3),BC=3*sqrt(3),∠ABC=60o. Find the length of the circle chord that divides angle ∠ABC in half.",4,A,Yas
+"Median AM and the angle bisector CD of a right triangle ABC (∠B=90o) intersect at the point O. Find the area of the triangle ABC if CO=9,OD=5.",66.15,A,Yas
+"Points A,B and C lie on the same line so that CA=AB. Square ABDE and the equilateral triangle CFA, are constructed  on the same side of line CB. Find the acute angle between straight lines CE and BF.",75,A,Yas
+"In the quadrilateral $ABCD$, we have $\measuredangle BAD = 100^{\circ}$, $\measuredangle BCD = 130^{\circ}$, and $AB=AD=1$. Find the length of diagonal $AC$.",1,A,Yas
+"In the triangle $ABC$, $AD$ is altitude, $M$ is the midpoint of $BC$. It is known that $\angle BAD = \angle DAM =  \angle MAC$. Find the values of the angles of the triangle $ABC$",90;60;30,E,Yas
+"In the quadrilateral ABCD, the angles B and D are right . The diagonal AC forms with the side AB the angle of 40o, as well with side AD an angle of 30o. Find an acute angle between the  diagonals AC and BD.",80,E,Yas
+"Given the equilateral triangle ABC. It is known that the radius of the inscribed circle is in this triangle is equal to 1. The rectangle ABDE is such that point C belongs to its side DE. Find the radius of the circle circumscribed around the rectangle ABDE.",2.291,E,Yas
+"In the rectangle ABCD, AB=2BC. An equilateral triangle ABE is constructed on the side AB of the rectangle so that its sides AE and BE intersect the segment CD. Point M is the midpoint of BE. Find the ∠MCD.",15,E,Yas
+"In the triangle $ABC$, it is known that $AB = BC = 20$ cm, and $AC = 24$ cm. The point $M$ lies on the side $BC$ and is equidistant from sides $AB$ and $AC$. Find this distance.",8.727,E,Yas
+"
