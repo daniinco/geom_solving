@@ -55,8 +55,7 @@ s.add((py - ay) == (by - py))
 s.add(((ax - bx) * (cx - bx) + (ay - by) * (cy - by)) ** 2 * ((dx - ex) ** 2 + (dy - ey) ** 2) * ((fx - ex) ** 2 + (fy - ey) ** 2) == ((dx - ex) * (fx - ex) + (dy - ey) * (fy - ey)) ** 2 * ((ax - bx) ** 2 + (ay - by) ** 2) * ((cx - bx) ** 2 + (cy - by) ** 2))
 
 ## Как задать что угол ABC равен a градусов:
-cos_angle = math.cos(a * math.pi / 180)
-s.add(cos_angle ** 2 * ((ax - bx) ** 2 + (ay - by) ** 2) * ((cx - bx) ** 2 + (cy - by) ** 2) == ((ax - bx) * (cx - bx) + (ay - by) * (cy - by)) ** 2)
+s.add(\{значение косинуса угла\} ** 2 * ((ax - bx) ** 2 + (ay - by) ** 2) * ((cx - bx) ** 2 + (cy - by) ** 2) == ((ax - bx) * (cx - bx) + (ay - by) * (cy - by)) ** 2)
 
 ## Биссектриса угла BAC:
 Точка X на биссектрисе:
@@ -129,11 +128,35 @@ USER_PROMPT = """Переведи эту геометрическую задач
 ```python
 """
 
+REPAIR_PROMPT = """Сгенерированная программа для геометрической задачи упала при выполнении. Исправь программу.
+
+Задача: {question}
+
+Текущая программа:
+```python
+{code}
+```
+
+Вывод программы stdout:
+```text
+{output}
+```
+
+Ошибка выполнения stderr:
+```text
+{error}
+```
+
+Напиши только полный исправленный код Python, без объяснений. НЕ ПОВТОРЯЙ условия. Код должен выводить ответ в формате "Ответ: число".
+```python
+"""
+
 # ============================================================================
 # Параметры
 # ============================================================================
 MODEL_NAME = "TheCluster/Qwen3.5-9B-Claude-4.6-HighIQ-INSTRUCT-HERETIC-UNCENSORED-MLX-mxfp8"
 MAX_TOKENS = 2000
+MAX_REPAIR_ATTEMPTS = 3
 Z3_TASKS_DIR = Path("src/z3_tasks")
 
 
@@ -257,6 +280,29 @@ def load_dataset(csv_path: str) -> list[dict]:
     return data
 
 
+def generate_code(model, tokenizer, user_prompt: str) -> str:
+    """Генерирует Python код через chat template."""
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_prompt},
+    ]
+    full_prompt = tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
+        enable_thinking=False,
+    )
+
+    response = generate(
+        model, tokenizer,
+        prompt=full_prompt,
+        max_tokens=MAX_TOKENS,
+        verbose=False,
+        sampler=make_sampler(temp=0.0),
+    )
+    return extract_code(response)
+
+
 def run_evaluation(dataset_path: str, limit: int | None = None):
     """Запускает оценку на датасете."""
     
@@ -293,32 +339,30 @@ def run_evaluation(dataset_path: str, limit: int | None = None):
         
         task_start = time.time()
         
-        # Формируем промпт через chat template, как в preprocessing3
-        messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": USER_PROMPT.format(question=question)},
-        ]
-        full_prompt = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=False,
-        )
-        
         # Генерируем код
-        response = generate(
-            model, tokenizer,
-            prompt=full_prompt,
-            max_tokens=MAX_TOKENS,
-            verbose=False,
-            sampler=make_sampler(temp=0.0),
-        )
+        code = generate_code(model, tokenizer, USER_PROMPT.format(question=question))
         
-        # Извлекаем код
-        code = extract_code(response)
-        
-        # Выполняем код
+        # Выполняем код. Если программа упала, просим модель исправить её до 3 раз.
         output, predicted, error = run_z3_code(code, i)
+        repair_attempts = 0
+        repair_errors = []
+        while error and repair_attempts < MAX_REPAIR_ATTEMPTS:
+            repair_attempts += 1
+            repair_errors.append({
+                "attempt": repair_attempts,
+                "output": output,
+                "error": error,
+            })
+            print(f"   🔧 Попытка исправления {repair_attempts}/{MAX_REPAIR_ATTEMPTS}: {error[:100]}...")
+
+            repair_prompt = REPAIR_PROMPT.format(
+                question=question,
+                code=code,
+                output=output,
+                error=error,
+            )
+            code = generate_code(model, tokenizer, repair_prompt)
+            output, predicted, error = run_z3_code(code, i)
         
         task_time = time.time() - task_start
         total_time += task_time
@@ -345,6 +389,8 @@ def run_evaluation(dataset_path: str, limit: int | None = None):
             "predicted": predicted,
             "correct": is_correct,
             "time": task_time,
+            "repair_attempts": repair_attempts,
+            "repair_errors": repair_errors,
             "error": error if error else None
         })
     
@@ -374,6 +420,7 @@ def run_evaluation(dataset_path: str, limit: int | None = None):
         "dataset": dataset_path,
         "model": MODEL_NAME,
         "max_tokens": MAX_TOKENS,
+        "max_repair_attempts": MAX_REPAIR_ATTEMPTS,
         "total": len(dataset),
         "correct": correct_count,
         "accuracy": accuracy,
