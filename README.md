@@ -4,6 +4,12 @@
 
 Как прогнать:
 
+Запуск бейзлайна:
+python3 baseline.py --dataset data/t_geom.csv --limit 51
+
+Запуск Ace-Reason-Nemotron:
+python3 ace_reason.py --dataset data/t_geom.csv --limit 51
+
 Запускаем замены букв:
 
 ./src/calculation/prepreprocessing/preproc_letters.py --dataset data/t_geom.csv --limit 51
@@ -27,7 +33,7 @@ python3 src/calculation/run_z3.py --dataset data/t_geom_lettered.csv --limit 51
 
 Запускаем валидацию:
 
-./src/calculation/validation/validate_features.sh --dataset data/all_conditions_t_geom_lettered.csv --limit 51
+./src/calculation/validation2/validate_features.sh --dataset data/all_conditions_t_geom_lettered.csv --limit 51
 
 Запускаем создание программ для z3:
 
